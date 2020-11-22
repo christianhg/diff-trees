@@ -12,11 +12,14 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "build": "npm run prettier-production && tsdx build",
     "test": "tsdx test",
     "test-watch": "tsdx test --watchAll",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
+    "prettier": "prettier --write \"{**/*,*}.{js,md,ts}\"",
+    "prettier-production": "prettier --list-different \"{**/*,*}.{js,md,ts}\"",
+    "prettier-staged": "pretty-quick --staged --pattern \"{**/*,*}.{js,md,ts}\"",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
@@ -48,6 +51,8 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.9.0",
     "husky": "^4.3.0",
+    "prettier": "^2.2.0",
+    "pretty-quick": "^3.1.0",
     "size-limit": "^4.9.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.0.3",
