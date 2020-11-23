@@ -3,10 +3,13 @@ import { flattenTree, FlatTree } from '../src/flatten-tree';
 import { TreeNode } from '../src/types';
 
 export const flatTreeMatches: Entry<TreeNode<string>, FlatTree<string>>[] = [
-  [{ id: '1', value: 'a', children: [] }, [{ id: '1', value: 'a' }, []]],
+  [
+    { id: '1', value: 'a', children: [] },
+    [{ id: '1', value: 'a' }, new Map([])],
+  ],
   [
     { id: '1', value: 'a', children: [{ id: '2', value: 'b', children: [] }] },
-    [{ id: '1', value: 'a' }, [{ id: '2', value: 'b', address: ['1', 0] }]],
+    [{ id: '1', value: 'a' }, new Map([[['1', 0], { id: '2', value: 'b' }]])],
   ],
   [
     {
@@ -31,14 +34,14 @@ export const flatTreeMatches: Entry<TreeNode<string>, FlatTree<string>>[] = [
     },
     [
       { id: '1', value: 'a' },
-      [
-        { id: '2', value: 'b', address: ['1', 0] },
-        { id: '3', value: 'c', address: ['1', 1] },
-        { id: '5', value: 'e', address: ['3', 0] },
-        { id: '7', value: 'g', address: ['5', 0] },
-        { id: '6', value: 'f', address: ['3', 1] },
-        { id: '4', value: 'd', address: ['1', 2] },
-      ],
+      new Map([
+        [['1', 0], { id: '2', value: 'b' }],
+        [['1', 1], { id: '3', value: 'c' }],
+        [['3', 0], { id: '5', value: 'e' }],
+        [['5', 0], { id: '7', value: 'g' }],
+        [['3', 1], { id: '6', value: 'f' }],
+        [['1', 2], { id: '4', value: 'd' }],
+      ]),
     ],
   ],
 ];

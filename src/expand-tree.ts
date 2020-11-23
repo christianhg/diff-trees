@@ -1,4 +1,4 @@
-import { FlatNodes, FlatTree } from './flatten-tree';
+import { FlatNode, FlatTree } from './flatten-tree';
 import { TreeNode } from './types';
 
 export function expandTree<TValue>([
@@ -8,22 +8,22 @@ export function expandTree<TValue>([
   return {
     id: root.id,
     value: root.value,
-    children: expandNodes(nodes, root.id),
+    children: expandNodes(Array.from(nodes), root.id),
   };
 }
 
 function expandNodes<TValue>(
-  flatNodes: FlatNodes<TValue>,
+  flatNodes: FlatNode<TValue>[],
   parentId: string
 ): TreeNode<TValue>[] {
   const children = flatNodes
-    .filter(node => node.address[0] === parentId)
-    .sort((a, b) => a.address[1] - b.address[1]);
+    .filter(([address]) => address[0] === parentId)
+    .sort(([addressA], [addressB]) => addressA[1] - addressB[1]);
   const rest = flatNodes.filter(
-    node => !children.find(child => node.id === child.id)
+    ([_, node]) => !children.find(([_, child]) => node.id === child.id)
   );
 
-  return children.map(child => ({
+  return children.map(([_, child]) => ({
     id: child.id,
     value: child.value,
     children: expandNodes(rest, child.id),

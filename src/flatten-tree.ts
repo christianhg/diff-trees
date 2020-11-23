@@ -1,5 +1,5 @@
 import { flatten } from './array';
-import { createEntry } from './entries';
+import { createEntry, Entry } from './entries';
 import { Address, TreeNode } from './types';
 
 export type FlatTree<TValue> = [
@@ -7,32 +7,40 @@ export type FlatTree<TValue> = [
   FlatNodes<TValue>
 ];
 
-export type FlatNodes<TValue> = (Omit<TreeNode<TValue>, 'children'> & {
-  address: Address<TValue>;
-})[];
+export type FlatNodes<TValue> = Map<
+  Address<TValue>,
+  Omit<TreeNode<TValue>, 'children'>
+>;
+
+export type FlatNode<TValue> = Entry<
+  Address<TValue>,
+  Omit<TreeNode<TValue>, 'children'>
+>;
 
 export function flattenTree<TValue>(tree: TreeNode<TValue>): FlatTree<TValue> {
   return [
     { id: tree.id, value: tree.value },
-    flattenNodes(tree.children, tree.id),
+    new Map(flattenNodes(tree.children, tree.id)),
   ];
 }
 
 function flattenNodes<TValue>(
   nodes: TreeNode<TValue>[],
   parentId: string
-): (Omit<TreeNode<TValue>, 'children'> & { address: Address<TValue> })[] {
+): FlatNode<TValue>[] {
   return flatten(
     nodes.map((node, index) => {
       const address = createEntry(parentId, index);
       const children = flattenNodes(node.children, node.id);
 
       return [
-        {
-          id: node.id,
-          value: node.value,
+        [
           address,
-        },
+          {
+            id: node.id,
+            value: node.value,
+          },
+        ],
         ...children,
       ];
     })
