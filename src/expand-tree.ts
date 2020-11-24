@@ -17,8 +17,8 @@ function expandNodes<TValue>(
   parentId: string
 ): TreeNode<TValue>[] {
   const children = flatNodes
-    .filter(([address]) => address[0] === parentId)
-    .sort(([addressA], [addressB]) => addressA[1] - addressB[1]);
+    .filter(([, { address }]) => address[0] === parentId)
+    .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
   const rest = flatNodes.filter(
     ([_, node]) => !children.find(([_, child]) => node.id === child.id)
   );

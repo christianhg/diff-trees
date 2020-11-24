@@ -8,13 +8,13 @@ export type FlatTree<TValue> = [
 ];
 
 export type FlatNodes<TValue> = Map<
-  Address<TValue>,
-  Omit<TreeNode<TValue>, 'children'>
+  TreeNode<TValue>['id'],
+  Omit<TreeNode<TValue>, 'children'> & { address: Address<TValue> }
 >;
 
 export type FlatNode<TValue> = Entry<
-  Address<TValue>,
-  Omit<TreeNode<TValue>, 'children'>
+  TreeNode<TValue>['id'],
+  Omit<TreeNode<TValue>, 'children'> & { address: Address<TValue> }
 >;
 
 export function flattenTree<TValue>(tree: TreeNode<TValue>): FlatTree<TValue> {
@@ -35,10 +35,11 @@ function flattenNodes<TValue>(
 
       return [
         [
-          address,
+          node.id,
           {
             id: node.id,
             value: node.value,
+            address,
           },
         ],
         ...children,
