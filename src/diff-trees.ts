@@ -27,15 +27,6 @@ export type TreeNodeDiff<Value> = {
 
 export type DiffTree<TValue> = TreeNodeDiff<TValue>;
 
-/**
- * - Get all deleted nodes from tree A
- * - Get all inserted nodes in tree B
- * - Remove inserted nodes from tree B
- * - Add deleted nodes back to tree B
- * -
- * - Annotate tree B with "moved", "updated" and "unchanged"
- * - Add ba
- */
 export function diffTrees<TValue>(
   treeA: TreeNode<TValue>,
   treeB: TreeNode<TValue>
@@ -57,35 +48,101 @@ export function diffTrees<TValue>(
       },
     ]);
 
-  const annotatedNodes: FlatAnnotatedTreeNodes<TValue> = Array.from(nodesB).map(
+  const insertedAndChanged: FlatAnnotatedTreeNodes<TValue> = Array.from(
+    nodesB
+  ).map(([id, node]) => {
+    const nodeA = nodesA.get(id);
+    const inserted = !nodeA;
+    const valueChanged = nodeA ? node.value !== nodeA.value : false;
+
+    return [
+      id,
+      {
+        id: node.id,
+        value: node.value,
+        address: node.address,
+        change: inserted
+          ? [ChangeType.Inserted]
+          : valueChanged
+          ? [ChangeType.Updated]
+          : [ChangeType.Unchanged],
+      },
+    ];
+  });
+
+  const deletedInsertedAndChanged: FlatAnnotatedTreeNodes<TValue> = [
+    ...deletedNodes,
+    ...insertedAndChanged,
+  ];
+
+  const annotatedNodes: FlatAnnotatedTreeNodes<TValue> = deletedInsertedAndChanged.map(
     ([id, node]) => {
-      const nodeA = nodesA.get(id);
-      const inserted = !nodeA;
-      const valueChanged = nodeA ? node.value !== nodeA.value : false;
-      const moved = nodeA
-        ? node.address[0] !== nodeA.address[0] ||
-          node.address[1] !== nodeA.address[1]
+      if (
+        node.change[0] === ChangeType.Inserted ||
+        node.change[0] === ChangeType.Deleted
+      ) {
+        return [id, node];
+      }
+
+      const originalAddress = nodesA.get(id)?.address;
+
+      const definitelyMoved =
+        originalAddress && originalAddress[0] !== node.address[0];
+
+      if (definitelyMoved) {
+        return [
+          id,
+          {
+            id: node.id,
+            value: node.value,
+            address: node.address,
+            change:
+              node.change[0] === ChangeType.Unchanged
+                ? [ChangeType.Moved]
+                : node.change[0] === ChangeType.Updated
+                ? [ChangeType.Moved, ChangeType.Updated]
+                : [ChangeType.Moved],
+          },
+        ];
+      }
+
+      const mightHaveMoved = originalAddress
+        ? originalAddress[0] === node.address[0] &&
+          originalAddress[1] !== node.address[1]
         : false;
 
-      const change: Change = inserted
-        ? [ChangeType.Inserted]
-        : valueChanged && moved
-        ? [ChangeType.Moved, ChangeType.Updated]
-        : valueChanged
-        ? [ChangeType.Updated]
-        : moved
-        ? [ChangeType.Moved]
-        : [ChangeType.Unchanged];
+      if (originalAddress && mightHaveMoved) {
+        const siblings = deletedInsertedAndChanged
+          .filter(([_, sib]) => sib.address[0] === node.address[0])
+          .filter(([id]) => id !== node.id)
+          .filter(([_, sib]) => sib.address[1] <= node.address[1])
+          .filter(([_, sib]) => sib.change[0] !== ChangeType.Inserted);
 
-      return [
-        id,
-        {
-          id: node.id,
-          value: node.value,
-          address: node.address,
-          change: change,
-        },
-      ];
+        const movedUp = node.address[1] < originalAddress[1];
+        const movedDown = node.address[1] > originalAddress[1];
+
+        if (
+          (movedUp && siblings.length !== originalAddress[1]) ||
+          (movedDown && siblings.length > originalAddress[1])
+        ) {
+          return [
+            id,
+            {
+              id: node.id,
+              value: node.value,
+              address: node.address,
+              change:
+                node.change[0] === ChangeType.Unchanged
+                  ? [ChangeType.Moved]
+                  : node.change[0] === ChangeType.Updated
+                  ? [ChangeType.Moved, ChangeType.Updated]
+                  : [ChangeType.Moved],
+            },
+          ];
+        }
+      }
+
+      return [id, node];
     }
   );
 
@@ -97,7 +154,7 @@ export function diffTrees<TValue>(
           ? [ChangeType.Updated]
           : [ChangeType.Unchanged],
     },
-    [...annotatedNodes, ...deletedNodes],
+    annotatedNodes,
   ];
 
   const expandedAnnotatedTreeB = expandAnnotatedTree(annotatedTreeB);
