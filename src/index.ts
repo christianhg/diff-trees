@@ -188,7 +188,7 @@ type FlatAnnotatedTreeNode<TValue> = Entry<
 
 type FlatAnnotatedTreeNodes<TValue> = FlatAnnotatedTreeNode<TValue>[];
 
-export function expandAnnotatedTree<TValue>([
+function expandAnnotatedTree<TValue>([
   root,
   nodes,
 ]: FlatAnnotatedTree<TValue>): AnnotatedTreeNode<TValue> {
