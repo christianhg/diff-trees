@@ -160,11 +160,79 @@ const diffTreesMatches: [
     },
   ],
 ];
+type CustomValue = { version: string; backendId?: string };
+const customValueEquality: [
+  TreeNode<CustomValue>,
+  TreeNode<CustomValue>,
+  DiffTree<CustomValue>
+][] = [
+  [
+    {
+      id: '1',
+      value: {
+        version: '1',
+      },
+      children: [],
+    },
+    {
+      id: '1',
+      value: {
+        version: '1',
+      },
+      children: [],
+    },
+    {
+      id: '1',
+      value: {
+        version: '1',
+      },
+      change: [ChangeType.Unchanged],
+      children: [],
+    },
+  ],
+  [
+    {
+      id: '1',
+      value: {
+        version: '1',
+      },
+      children: [],
+    },
+    {
+      id: '1',
+      value: {
+        version: '1',
+        backendId: 'b1',
+      },
+      children: [],
+    },
+    {
+      id: '1',
+      value: {
+        version: '1',
+        backendId: 'b1',
+      },
+      change: [ChangeType.Updated],
+      children: [],
+    },
+  ],
+];
 
 describe(diffTrees.name, () => {
   it('works', () => {
     diffTreesMatches.forEach(([treeA, treeB, diffTree]) => {
       expect(diffTrees(treeA, treeB)).toEqual(diffTree);
+    });
+  });
+
+  it('works with custom value equality', () => {
+    customValueEquality.forEach(([treeA, treeB, diffTree]) => {
+      expect(
+        diffTrees(treeA, treeB, {
+          valueEquality: (a, b) =>
+            a.version === b.version && a.backendId === b.backendId,
+        })
+      ).toEqual(diffTree);
     });
   });
 });

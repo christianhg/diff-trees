@@ -29,7 +29,10 @@ export type DiffTree<TValue> = TreeNodeDiff<TValue>;
 
 export function diffTrees<TValue>(
   treeA: TreeNode<TValue>,
-  treeB: TreeNode<TValue>
+  treeB: TreeNode<TValue>,
+  options: { valueEquality: (a: TValue, b: TValue) => boolean } = {
+    valueEquality: (a, b) => a === b,
+  }
 ): DiffTree<TValue> {
   const flatTreeA = flattenTree(treeA);
   const flatTreeB = flattenTree(treeB);
@@ -53,7 +56,9 @@ export function diffTrees<TValue>(
   ).map(([id, node]) => {
     const nodeA = nodesA.get(id);
     const inserted = !nodeA;
-    const valueChanged = nodeA ? node.value !== nodeA.value : false;
+    const valueChanged = nodeA
+      ? !options.valueEquality(node.value, nodeA.value)
+      : false;
 
     return [
       id,
@@ -149,10 +154,9 @@ export function diffTrees<TValue>(
   const annotatedTreeB: FlatAnnotatedTree<TValue> = [
     {
       ...rootB,
-      change:
-        rootA.value !== rootB.value
-          ? [ChangeType.Updated]
-          : [ChangeType.Unchanged],
+      change: !options.valueEquality(rootA.value, rootB.value)
+        ? [ChangeType.Updated]
+        : [ChangeType.Unchanged],
     },
     annotatedNodes,
   ];
