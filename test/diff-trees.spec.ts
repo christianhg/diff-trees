@@ -103,6 +103,62 @@ const diffTreesMatches: [
       ],
     },
   ],
+  [
+    {
+      id: '1',
+      value: 'a',
+      children: [
+        {
+          id: '2',
+          value: 'b',
+          children: [
+            {
+              id: '3',
+              value: 'c',
+              children: [
+                { id: '4', value: 'd', children: [] },
+                { id: '5', value: 'e', children: [] },
+                { id: '6', value: 'f', children: [] },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: '1',
+      value: 'a',
+      children: [
+        {
+          id: '2',
+          value: 'b',
+          children: [
+            { id: '4', value: 'd', children: [] },
+            { id: '5', value: 'e', children: [] },
+            { id: '6', value: 'f', children: [] },
+          ],
+        },
+      ],
+    },
+    {
+      id: '1',
+      value: 'a',
+      change: [ChangeType.Unchanged],
+      children: [
+        {
+          id: '2',
+          value: 'b',
+          change: [ChangeType.Unchanged],
+          children: [
+            { id: '3', value: 'c', children: [], change: [ChangeType.Deleted] },
+            { id: '4', value: 'd', children: [], change: [ChangeType.Moved] },
+            { id: '5', value: 'e', children: [], change: [ChangeType.Moved] },
+            { id: '6', value: 'f', children: [], change: [ChangeType.Moved] },
+          ],
+        },
+      ],
+    },
+  ],
 ];
 
 describe(diffTrees.name, () => {
