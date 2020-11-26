@@ -1,5 +1,7 @@
 # diff-trees
 
+> For diffing ordered trees
+
 [![npm module](https://badge.fury.io/js/diff-trees.svg)](https://www.npmjs.org/package/diff-trees)
 [![Dependencies](https://david-dm.org/christianhg/diff-trees.svg)](https://david-dm.org/christianhg/diff-trees)
 
