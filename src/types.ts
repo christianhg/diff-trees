@@ -1,9 +1,9 @@
 import { Entry } from './entries';
 
-export type TreeNode<Value> = {
+export type TreeNode<TValue> = {
   id: string;
-  value: Value;
-  children: TreeNode<Value>[];
+  value: TValue;
+  children: TreeNode<TValue>[];
 };
 
 export type Address<TValue> = Entry<TreeNode<TValue>['id'], number>;

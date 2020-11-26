@@ -18,14 +18,10 @@ type Change =
   | [ChangeType.Moved]
   | [ChangeType.Moved, ChangeType.Updated];
 
-export type TreeNodeDiff<Value> = {
-  id: string;
-  value: Value;
+export type DiffTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
   change: Change;
-  children: TreeNodeDiff<Value>[];
+  children: DiffTreeNode<TValue>[];
 };
-
-export type DiffTree<TValue> = TreeNodeDiff<TValue>;
 
 export function diffTrees<TValue>(
   treeA: TreeNode<TValue>,
@@ -33,13 +29,11 @@ export function diffTrees<TValue>(
   options: { valueEquality: (a: TValue, b: TValue) => boolean } = {
     valueEquality: (a, b) => a === b,
   }
-): DiffTree<TValue> {
-  const flatTreeA = flattenTree(treeA);
-  const flatTreeB = flattenTree(treeB);
-  const [rootA, nodesA] = flatTreeA;
-  const [rootB, nodesB] = flatTreeB;
+): DiffTreeNode<TValue> {
+  const [rootA, nodesA] = flattenTree(treeA);
+  const [rootB, nodesB] = flattenTree(treeB);
 
-  const deletedNodes: FlatAnnotatedTreeNodes<TValue> = Array.from(nodesA)
+  const deletedNodes: FlatDiffTreeNodes<TValue> = Array.from(nodesA)
     .filter(([id]) => !nodesB.get(id))
     .map(([id, node]) => [
       id,
@@ -51,36 +45,36 @@ export function diffTrees<TValue>(
       },
     ]);
 
-  const insertedAndChanged: FlatAnnotatedTreeNodes<TValue> = Array.from(
-    nodesB
-  ).map(([id, node]) => {
-    const nodeA = nodesA.get(id);
-    const inserted = !nodeA;
-    const valueChanged = nodeA
-      ? !options.valueEquality(node.value, nodeA.value)
-      : false;
+  const insertedAndChanged: FlatDiffTreeNodes<TValue> = Array.from(nodesB).map(
+    ([id, node]) => {
+      const nodeA = nodesA.get(id);
+      const inserted = !nodeA;
+      const valueChanged = nodeA
+        ? !options.valueEquality(node.value, nodeA.value)
+        : false;
 
-    return [
-      id,
-      {
-        id: node.id,
-        value: node.value,
-        address: node.address,
-        change: inserted
-          ? [ChangeType.Inserted]
-          : valueChanged
-          ? [ChangeType.Updated]
-          : [ChangeType.Unchanged],
-      },
-    ];
-  });
+      return [
+        id,
+        {
+          id: node.id,
+          value: node.value,
+          address: node.address,
+          change: inserted
+            ? [ChangeType.Inserted]
+            : valueChanged
+            ? [ChangeType.Updated]
+            : [ChangeType.Unchanged],
+        },
+      ];
+    }
+  );
 
-  const deletedInsertedAndChanged: FlatAnnotatedTreeNodes<TValue> = [
+  const deletedInsertedAndChanged: FlatDiffTreeNodes<TValue> = [
     ...deletedNodes,
     ...insertedAndChanged,
   ];
 
-  const annotatedNodes: FlatAnnotatedTreeNodes<TValue> = deletedInsertedAndChanged.map(
+  const flatTreeDiffNodes: FlatDiffTreeNodes<TValue> = deletedInsertedAndChanged.map(
     ([id, node]) => {
       if (
         node.change[0] === ChangeType.Inserted ||
@@ -117,19 +111,20 @@ export function diffTrees<TValue>(
         : false;
 
       if (originalAddress && mightHaveMoved) {
-        const siblings = deletedInsertedAndChanged
+        const siblingsAbove = deletedInsertedAndChanged
           .filter(([_, sib]) => sib.address[0] === node.address[0])
           .filter(([id]) => id !== node.id)
           .filter(([_, sib]) => sib.address[1] <= node.address[1])
           .filter(([_, sib]) => sib.change[0] !== ChangeType.Inserted);
 
-        const movedUp = node.address[1] < originalAddress[1];
-        const movedDown = node.address[1] > originalAddress[1];
+        const movedUp =
+          node.address[1] < originalAddress[1] &&
+          siblingsAbove.length !== originalAddress[1];
+        const movedDown =
+          node.address[1] > originalAddress[1] &&
+          siblingsAbove.length > originalAddress[1];
 
-        if (
-          (movedUp && siblings.length !== originalAddress[1]) ||
-          (movedDown && siblings.length > originalAddress[1])
-        ) {
+        if (movedUp || movedDown) {
           return [
             id,
             {
@@ -151,34 +146,27 @@ export function diffTrees<TValue>(
     }
   );
 
-  const annotatedTreeB: FlatAnnotatedTree<TValue> = [
+  const flatDiffTree: FlatDiffTree<TValue> = [
     {
       ...rootB,
       change: !options.valueEquality(rootA.value, rootB.value)
         ? [ChangeType.Updated]
         : [ChangeType.Unchanged],
     },
-    annotatedNodes,
+    flatTreeDiffNodes,
   ];
 
-  const expandedAnnotatedTreeB = expandAnnotatedTree(annotatedTreeB);
-
-  return expandedAnnotatedTreeB;
+  return expandDiffTree(flatDiffTree);
 }
 
-type AnnotatedTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
-  children: AnnotatedTreeNode<TValue>[];
-  change: Change;
-};
-
-type FlatAnnotatedTree<TValue> = [
+type FlatDiffTree<TValue> = [
   Omit<TreeNode<TValue>, 'children'> & {
     change: Change;
   },
-  FlatAnnotatedTreeNodes<TValue>
+  FlatDiffTreeNodes<TValue>
 ];
 
-type FlatAnnotatedTreeNode<TValue> = Entry<
+type FlatDiffTreeNode<TValue> = Entry<
   TreeNode<TValue>['id'],
   Omit<TreeNode<TValue>, 'children'> & {
     address: Address<TValue>;
@@ -186,24 +174,24 @@ type FlatAnnotatedTreeNode<TValue> = Entry<
   }
 >;
 
-type FlatAnnotatedTreeNodes<TValue> = FlatAnnotatedTreeNode<TValue>[];
+type FlatDiffTreeNodes<TValue> = FlatDiffTreeNode<TValue>[];
 
-function expandAnnotatedTree<TValue>([
+function expandDiffTree<TValue>([
   root,
   nodes,
-]: FlatAnnotatedTree<TValue>): AnnotatedTreeNode<TValue> {
+]: FlatDiffTree<TValue>): DiffTreeNode<TValue> {
   return {
     id: root.id,
     value: root.value,
     change: root.change,
-    children: expandAnnotatedNodes(Array.from(nodes), root.id),
+    children: expandDiffTreeNodes(Array.from(nodes), root.id),
   };
 }
 
-function expandAnnotatedNodes<TValue>(
-  flatNodes: FlatAnnotatedTreeNodes<TValue>,
+function expandDiffTreeNodes<TValue>(
+  flatNodes: FlatDiffTreeNodes<TValue>,
   parentId: string
-): AnnotatedTreeNode<TValue>[] {
+): DiffTreeNode<TValue>[] {
   const children = flatNodes
     .filter(([, { address }]) => address[0] === parentId)
     .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
@@ -215,6 +203,6 @@ function expandAnnotatedNodes<TValue>(
     id: child.id,
     value: child.value,
     change: child.change,
-    children: expandAnnotatedNodes(rest, child.id),
+    children: expandDiffTreeNodes(rest, child.id),
   }));
 }

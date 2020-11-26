@@ -1,10 +1,10 @@
-import { ChangeType, DiffTree, diffTrees } from '../src/index';
+import { ChangeType, DiffTreeNode, diffTrees } from '../src/index';
 import { TreeNode } from '../src/types';
 
 const diffTreesMatches: [
   TreeNode<string>,
   TreeNode<string>,
-  DiffTree<string>
+  DiffTreeNode<string>
 ][] = [
   [
     { id: '1', value: 'a', children: [] },
@@ -164,7 +164,7 @@ type CustomValue = { version: string; backendId?: string };
 const customValueEquality: [
   TreeNode<CustomValue>,
   TreeNode<CustomValue>,
-  DiffTree<CustomValue>
+  DiffTreeNode<CustomValue>
 ][] = [
   [
     {
