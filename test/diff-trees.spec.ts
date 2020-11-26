@@ -9,7 +9,7 @@ const diffTreesMatches: [
   [
     { id: '1', value: 'a', children: [] },
     { id: '1', value: 'a', children: [] },
-    { id: '1', value: 'a', children: [], change: [ChangeType.Unchanged] },
+    { id: '1', value: 'a', change: [ChangeType.Unchanged], children: [] },
   ],
   [
     { id: '1', value: 'a', children: [] },
@@ -17,10 +17,10 @@ const diffTreesMatches: [
     {
       id: '1',
       value: 'a',
-      children: [
-        { id: '2', value: 'b', children: [], change: [ChangeType.Inserted] },
-      ],
       change: [ChangeType.Unchanged],
+      children: [
+        { id: '2', value: 'b', change: [ChangeType.Inserted], children: [] },
+      ],
     },
   ],
   [
