@@ -5,6 +5,8 @@
 [![npm module](https://badge.fury.io/js/diff-trees.svg)](https://www.npmjs.org/package/diff-trees)
 [![Dependencies](https://david-dm.org/christianhg/diff-trees.svg)](https://david-dm.org/christianhg/diff-trees)
 
+A single `diffTrees` function is exported:
+
 ```ts
 declare function diffTrees<TValue>(
   treeA: TreeNode<TValue>,
@@ -12,7 +14,7 @@ declare function diffTrees<TValue>(
 ): DiffTreeNode<TValue>;
 ```
 
-Given two trees of type:
+It takes two trees of type `TreeNode`:
 
 ```ts
 type TreeNode<TValue> = {
@@ -22,7 +24,7 @@ type TreeNode<TValue> = {
 };
 ```
 
-It will produce a single tree of type:
+And produces a single tree of type `DiffTreeNode`:
 
 ```ts
 type DiffTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
@@ -31,7 +33,7 @@ type DiffTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
 };
 ```
 
-Where `Change` is:
+Where a `Change` is:
 
 ```ts
 type Change =
@@ -43,7 +45,15 @@ type Change =
   | [ChangeType.Moved, ChangeType.Updated];
 ```
 
-The `value` in a `TreeNode` can be anything. If the `value` has changed, the `DiffTreeNode` is annotated with `ChangeType.Updated`. By default, values are compared using [strict equality (`===`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality). To change how values are compared, add a custom `valueEquality` function to the optional `options` object:
+- `ChangeType.Unchanged` denotes unchanged nodes.
+- `ChangeType.Inserted` denotes new nodes.
+- `ChangeType.Deleted` denotes deleted nodes.
+- `ChangeType.Updated` denotes nodes where the `value` changed.
+- `ChangeType.Moved` denotes nodes that moved to another subtree or changed place within the same subtree.
+
+---
+
+The `value` in a `TreeNode` can is generic. If the `value` has changed, the `DiffTreeNode` is annotated with `ChangeType.Updated`. By default, values are compared using [strict equality (`===`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality). To change how values are compared, add a custom `valueEquality` function to the optional `options` object:
 
 ```ts
 declare function diffTrees<TValue>(
