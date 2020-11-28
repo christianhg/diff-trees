@@ -1,48 +1,40 @@
 import { flatten } from './array';
-import { createEntry, Entry } from './entries';
+import { Entry } from './entries';
 import { Address, TreeNode } from './types';
 
-export type FlatTree<TValue> = [
-  Omit<TreeNode<TValue>, 'children'>,
-  FlatNodes<TValue>
+type FlatTree<TValue> = [
+  Pick<TreeNode<TValue>, 'id'>,
+  Map<TreeNode<TValue>['id'], FlatTreeNode<TValue>>
 ];
 
-export type FlatNodes<TValue> = Map<
-  TreeNode<TValue>['id'],
-  Omit<TreeNode<TValue>, 'children'> & { address: Address<TValue> }
->;
-
-export type FlatNode<TValue> = Entry<
-  TreeNode<TValue>['id'],
-  Omit<TreeNode<TValue>, 'children'> & { address: Address<TValue> }
->;
+type FlatTreeNode<TValue> = Pick<TreeNode<TValue>, 'id'> & {
+  address: Address<TValue>;
+};
 
 export function flattenTree<TValue>(tree: TreeNode<TValue>): FlatTree<TValue> {
-  return [
-    { id: tree.id, value: tree.value },
-    new Map(flattenNodes(tree.children, tree.id)),
-  ];
+  const { children, ...root } = tree;
+
+  return [root, new Map(flattenNodes(children, root.id))];
 }
 
 function flattenNodes<TValue>(
   nodes: TreeNode<TValue>[],
-  parentId: string
-): FlatNode<TValue>[] {
+  parentId: TreeNode<TValue>['id']
+): Entry<TreeNode<TValue>['id'], FlatTreeNode<TValue>>[] {
   return flatten(
     nodes.map((node, index) => {
-      const address = createEntry(parentId, index);
-      const children = flattenNodes(node.children, node.id);
+      const { id, children, ...rest } = node;
 
       return [
         [
-          node.id,
+          id,
           {
-            id: node.id,
-            value: node.value,
-            address,
+            id,
+            address: [parentId, index],
+            ...rest,
           },
         ],
-        ...children,
+        ...flattenNodes(children, id),
       ];
     })
   );
