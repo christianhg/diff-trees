@@ -1,33 +1,33 @@
 import { Entry } from './entries';
-import { Address, TreeNode } from './types';
 
-type ExpandedTree<TValue> = Pick<TreeNode<TValue>, 'id'> & {
-  children: ExpandedTree<TValue>[];
-};
+type BaseTreeNode<TValues> = {
+  id: string;
+  children: BaseTreeNode<TValues>[];
+} & TValues;
 
-type FlatTreeNode<TValue> = Pick<TreeNode<TValue>, 'id'> & {
-  address: Address<TValue>;
-};
-
-type FlatTree<TValue> = [
-  Pick<TreeNode<TValue>, 'id'>,
-  Map<TreeNode<TValue>['id'], FlatTreeNode<TValue>>
+type FlatTree<TValues> = [
+  Omit<BaseTreeNode<TValues>, 'children'>,
+  Map<string, FlatTreeNode<TValues>>
 ];
 
-export function expandTree<TValue>([
+type FlatTreeNode<TValues> = Omit<BaseTreeNode<TValues>, 'children'> & {
+  address: [string, number];
+};
+
+export function expandTree<TValues>([
   root,
   nodes,
-]: FlatTree<TValue>): ExpandedTree<TValue> {
+]: FlatTree<TValues>): BaseTreeNode<TValues> {
   return {
     ...root,
     children: expandNodes(Array.from(nodes), root.id),
-  };
+  } as BaseTreeNode<TValues>;
 }
 
-function expandNodes<TValue>(
-  flatNodes: Entry<TreeNode<TValue>['id'], FlatTreeNode<TValue>>[],
-  parentId: TreeNode<TValue>['id']
-): ExpandedTree<TValue>[] {
+function expandNodes<TValues>(
+  flatNodes: Entry<string, FlatTreeNode<TValues>>[],
+  parentId: string
+): BaseTreeNode<TValues>[] {
   const children = flatNodes
     .filter(([, { address }]) => address[0] === parentId)
     .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
@@ -37,10 +37,11 @@ function expandNodes<TValue>(
 
   return children.map(([_, child]) => {
     const { address, ...rest } = child;
-
-    return {
+    const expandedNode = {
       ...rest,
       children: expandNodes(remainingNodes, rest.id),
-    };
+    } as BaseTreeNode<TValues>;
+
+    return expandedNode;
   });
 }
