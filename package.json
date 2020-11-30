@@ -25,6 +25,11 @@
   },
   "peerDependencies": {},
   "name": "diff-trees",
+  "keywords": [
+    "diff",
+    "tree",
+    "trees"
+  ],
   "author": "Christian Hamburger Grøngaard",
   "module": "dist/diff-trees.esm.js",
   "size-limit": [
