@@ -11,25 +11,24 @@ A single `diffTrees` function is exported:
 
 ```ts
 declare function diffTrees<TValue>(
-  treeA: TreeNode<TValue>,
-  treeB: TreeNode<TValue>
+  treeA: TreeNode<{ value: TValue }>,
+  treeB: TreeNode<{ value: TValue }>
 ): DiffTreeNode<TValue>;
 ```
 
 It takes two trees of type `TreeNode`:
 
 ```ts
-type TreeNode<TValue> = {
+type TreeNode<TValues> = {
   id: string;
-  value: TValue;
-  children: TreeNode<TValue>[];
-};
+  children: TreeNode<TValues>[];
+} & TValues;
 ```
 
 And produces a single tree of type `DiffTreeNode`:
 
 ```ts
-type DiffTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
+type DiffTreeNode<TValue> = Omit<TreeNode<{ value: TValue }>, 'children'> & {
   change: Change;
   children: DiffTreeNode<TValue>[];
 };
@@ -59,8 +58,8 @@ The `value` in a `TreeNode` can is generic. If the `value` has changed, the `Dif
 
 ```ts
 declare function diffTrees<TValue>(
-  treeA: TreeNode<TValue>,
-  treeB: TreeNode<TValue>,
+  treeA: TreeNode<{ value: TValue }>,
+  treeB: TreeNode<{ value: TValue }>,
   options?: {
     valueEquality: (a: TValue, b: TValue) => boolean;
   }
