@@ -25,6 +25,7 @@
   },
   "peerDependencies": {},
   "name": "diff-trees",
+  "description": "For diffing ordered trees",
   "keywords": [
     "diff",
     "tree",
