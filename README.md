@@ -5,7 +5,7 @@
 [![npm module](https://badge.fury.io/js/diff-trees.svg)](https://www.npmjs.org/package/diff-trees)
 [![Dependencies](https://david-dm.org/christianhg/diff-trees.svg)](https://david-dm.org/christianhg/diff-trees)
 
-![diff-trees](./diff-trees.png)
+![diff-trees](https://raw.githubusercontent.com/christianhg/diff-trees/main/diff-trees.png)
 
 A single `diffTrees` function is exported:
 
