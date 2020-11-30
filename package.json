@@ -24,11 +24,6 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {},
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
   "name": "diff-trees",
   "author": "Christian Hamburger Grøngaard",
   "module": "dist/diff-trees.esm.js",
@@ -44,7 +39,6 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.9.0",
-    "husky": "^4.3.0",
     "prettier": "^2.2.0",
     "pretty-quick": "^3.1.0",
     "size-limit": "^4.9.0",
