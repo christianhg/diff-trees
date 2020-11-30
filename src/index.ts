@@ -1,6 +1,7 @@
 import { Entry } from './entries';
 import { flattenTree } from './flatten-tree';
-import { Address, TreeNode } from './types';
+import { expandTree } from './expand-tree';
+import { FlatTree, FlatTreeNode, TreeNode } from './types';
 
 export enum ChangeType {
   Inserted = 'inserted',
@@ -18,14 +19,17 @@ type Change =
   | [ChangeType.Moved]
   | [ChangeType.Moved, ChangeType.Updated];
 
-export type DiffTreeNode<TValue> = Omit<TreeNode<TValue>, 'children'> & {
+export type DiffTreeNode<TValue> = Omit<
+  TreeNode<{ value: TValue }>,
+  'children'
+> & {
   change: Change;
   children: DiffTreeNode<TValue>[];
 };
 
 export function diffTrees<TValue>(
-  treeA: TreeNode<TValue>,
-  treeB: TreeNode<TValue>,
+  treeA: TreeNode<{ value: TValue }>,
+  treeB: TreeNode<{ value: TValue }>,
   options: { valueEquality: (a: TValue, b: TValue) => boolean } = {
     valueEquality: (a, b) => a === b,
   }
@@ -153,56 +157,15 @@ export function diffTrees<TValue>(
         ? [ChangeType.Updated]
         : [ChangeType.Unchanged],
     },
-    flatTreeDiffNodes,
+    new Map(flatTreeDiffNodes),
   ];
 
-  return expandDiffTree(flatDiffTree);
+  return expandTree(flatDiffTree);
 }
 
-type FlatDiffTree<TValue> = [
-  Omit<TreeNode<TValue>, 'children'> & {
-    change: Change;
-  },
-  FlatDiffTreeNodes<TValue>
-];
+type FlatDiffTree<TValue> = FlatTree<{ value: TValue; change: Change }>;
 
-type FlatDiffTreeNode<TValue> = Entry<
-  TreeNode<TValue>['id'],
-  Omit<TreeNode<TValue>, 'children'> & {
-    address: Address<TValue>;
-    change: Change;
-  }
->;
-
-type FlatDiffTreeNodes<TValue> = FlatDiffTreeNode<TValue>[];
-
-function expandDiffTree<TValue>([
-  root,
-  nodes,
-]: FlatDiffTree<TValue>): DiffTreeNode<TValue> {
-  return {
-    id: root.id,
-    value: root.value,
-    change: root.change,
-    children: expandDiffTreeNodes(Array.from(nodes), root.id),
-  };
-}
-
-function expandDiffTreeNodes<TValue>(
-  flatNodes: FlatDiffTreeNodes<TValue>,
-  parentId: string
-): DiffTreeNode<TValue>[] {
-  const children = flatNodes
-    .filter(([, { address }]) => address[0] === parentId)
-    .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
-  const rest = flatNodes.filter(
-    ([_, node]) => !children.find(([_, child]) => node.id === child.id)
-  );
-
-  return children.map(([_, child]) => ({
-    id: child.id,
-    value: child.value,
-    change: child.change,
-    children: expandDiffTreeNodes(rest, child.id),
-  }));
-}
+type FlatDiffTreeNodes<TValue> = Entry<
+  string,
+  FlatTreeNode<{ value: TValue; change: Change }>
+>[];

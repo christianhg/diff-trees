@@ -1,8 +1,11 @@
 import { Entry } from '../src/entries';
-import { flattenTree, FlatTree } from '../src/flatten-tree';
-import { TreeNode } from '../src/types';
+import { flattenTree } from '../src/flatten-tree';
+import { FlatTree, TreeNode } from '../src/types';
 
-export const flatTreeMatches: Entry<TreeNode<string>, FlatTree<string>>[] = [
+export const flatTreeMatches: Entry<
+  TreeNode<{ value: string }>,
+  FlatTree<{ value: string }>
+>[] = [
   [
     { id: '1', value: 'a', children: [] },
     [{ id: '1', value: 'a' }, new Map([])],

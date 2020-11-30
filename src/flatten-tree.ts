@@ -1,22 +1,9 @@
 import { flatten } from './array';
 import { createEntry, Entry } from './entries';
-
-type BaseTreeNode<TValues> = {
-  id: string;
-  children: BaseTreeNode<TValues>[];
-} & TValues;
-
-type FlatTree<TValues> = [
-  Omit<BaseTreeNode<TValues>, 'children'>,
-  Map<string, FlatTreeNode<TValues>>
-];
-
-type FlatTreeNode<TValues> = Omit<BaseTreeNode<TValues>, 'children'> & {
-  address: [string, number];
-};
+import { FlatTree, FlatTreeNode, TreeNode } from './types';
 
 export function flattenTree<TValues>(
-  tree: BaseTreeNode<TValues>
+  tree: TreeNode<TValues>
 ): FlatTree<TValues> {
   const { children, ...root } = tree;
 
@@ -24,7 +11,7 @@ export function flattenTree<TValues>(
 }
 
 function flattenNodes<TValues>(
-  nodes: BaseTreeNode<TValues>[],
+  nodes: TreeNode<TValues>[],
   parentId: string
 ): Entry<string, FlatTreeNode<TValues>>[] {
   return flatten(

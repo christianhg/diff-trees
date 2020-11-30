@@ -1,33 +1,20 @@
 import { Entry } from './entries';
-
-type BaseTreeNode<TValues> = {
-  id: string;
-  children: BaseTreeNode<TValues>[];
-} & TValues;
-
-type FlatTree<TValues> = [
-  Omit<BaseTreeNode<TValues>, 'children'>,
-  Map<string, FlatTreeNode<TValues>>
-];
-
-type FlatTreeNode<TValues> = Omit<BaseTreeNode<TValues>, 'children'> & {
-  address: [string, number];
-};
+import { FlatTree, FlatTreeNode, TreeNode } from './types';
 
 export function expandTree<TValues>([
   root,
   nodes,
-]: FlatTree<TValues>): BaseTreeNode<TValues> {
+]: FlatTree<TValues>): TreeNode<TValues> {
   return {
     ...root,
     children: expandNodes(Array.from(nodes), root.id),
-  } as BaseTreeNode<TValues>;
+  } as TreeNode<TValues>;
 }
 
 function expandNodes<TValues>(
   flatNodes: Entry<string, FlatTreeNode<TValues>>[],
   parentId: string
-): BaseTreeNode<TValues>[] {
+): TreeNode<TValues>[] {
   const children = flatNodes
     .filter(([, { address }]) => address[0] === parentId)
     .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
@@ -40,7 +27,7 @@ function expandNodes<TValues>(
     const expandedNode = {
       ...rest,
       children: expandNodes(remainingNodes, rest.id),
-    } as BaseTreeNode<TValues>;
+    } as TreeNode<TValues>;
 
     return expandedNode;
   });

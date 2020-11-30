@@ -1,9 +1,13 @@
-import { Entry } from './entries';
-
-export type TreeNode<TValue> = {
+export type TreeNode<TValues> = {
   id: string;
-  value: TValue;
-  children: TreeNode<TValue>[];
-};
+  children: TreeNode<TValues>[];
+} & TValues;
 
-export type Address<TValue> = Entry<TreeNode<TValue>['id'], number>;
+export type FlatTree<TValues> = [
+  Omit<TreeNode<TValues>, 'children'>,
+  Map<string, FlatTreeNode<TValues>>
+];
+
+export type FlatTreeNode<TValues> = Omit<TreeNode<TValues>, 'children'> & {
+  address: [string, number];
+};
