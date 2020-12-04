@@ -32,6 +32,12 @@
     "trees"
   ],
   "author": "Christian Hamburger Grøngaard",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/christianhg/diff-trees.git"
+  },
+  "homepage": "https://github.com/christianhg/diff-trees",
+  "bugs": "https://github.com/christianhg/diff-trees/issues",
   "module": "dist/diff-trees.esm.js",
   "size-limit": [
     {
