@@ -82,12 +82,38 @@ diffTrees(
 
 // =>
 
-{
-  id: '1',
-  value: 'a',
-  children: [],
-  change: [ChangeType.Unchanged],
-}
+[
+  {
+    id: '1',
+    value: 'a',
+    children: [],
+    change: [ChangeType.Unchanged],
+  },
+];
+```
+
+```ts
+diffTrees(
+  { id: '1', value: 'a', children: [] },
+  { id: '2', value: 'b', children: [] }
+);
+
+// =>
+
+[
+  {
+    id: '2',
+    value: 'b',
+    children: [],
+    change: [ChangeType.Inserted],
+  },
+  {
+    id: '1',
+    value: '1',
+    children: [],
+    change: [ChangeType.Deleted],
+  },
+];
 ```
 
 ```ts
@@ -98,14 +124,16 @@ diffTrees(
 
 // =>
 
-{
-  id: '1',
-  value: 'a',
-  change: [ChangeType.Unchanged],
-  children: [
-    { id: '2', value: 'b', change: [ChangeType.Inserted], children: [] },
-  ],
-}
+[
+  {
+    id: '1',
+    value: 'a',
+    change: [ChangeType.Unchanged],
+    children: [
+      { id: '2', value: 'b', change: [ChangeType.Inserted], children: [] },
+    ],
+  },
+];
 ```
 
 ```ts
@@ -130,23 +158,25 @@ diffTrees(
 
 // =>
 
-{
-  id: '1',
-  value: 'a',
-  change: [ChangeType.Unchanged],
-  children: [
-    {
-      id: '3',
-      value: 'c2',
-      change: [ChangeType.Moved, ChangeType.Updated],
-      children: [],
-    },
-    {
-      id: '2',
-      value: 'b',
-      change: [ChangeType.Moved],
-      children: [],
-    },
-  ],
-}
+[
+  {
+    id: '1',
+    value: 'a',
+    change: [ChangeType.Unchanged],
+    children: [
+      {
+        id: '3',
+        value: 'c2',
+        change: [ChangeType.Moved, ChangeType.Updated],
+        children: [],
+      },
+      {
+        id: '2',
+        value: 'b',
+        change: [ChangeType.Moved],
+        children: [],
+      },
+    ],
+  },
+];
 ```
