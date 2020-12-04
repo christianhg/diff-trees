@@ -1,27 +1,116 @@
-import { ChangeType, DiffTreeNode, diffTrees } from '../src/index';
+import { ChangeType, DiffTree, diffTrees } from '../src/index';
 import { TreeNode } from '../src/types';
 
 const diffTreesMatches: [
   TreeNode<{ value: string }>,
   TreeNode<{ value: string }>,
-  DiffTreeNode<string>
+  DiffTree<string>
 ][] = [
+  [
+    { id: '1', value: 'a', children: [{ id: '2', value: 'b', children: [] }] },
+    { id: '2', value: 'b', children: [{ id: '1', value: 'a', children: [] }] },
+    [
+      {
+        id: '2',
+        value: 'b',
+        change: [ChangeType.Moved],
+        children: [
+          { id: '1', value: 'a', change: [ChangeType.Moved], children: [] },
+        ],
+      },
+    ],
+  ],
+  [
+    { id: '1', value: 'a', children: [{ id: '2', value: 'b', children: [] }] },
+    {
+      id: '2',
+      value: 'b2',
+      children: [{ id: '1', value: 'a2', children: [] }],
+    },
+    [
+      {
+        id: '2',
+        value: 'b2',
+        change: [ChangeType.Moved, ChangeType.Updated],
+        children: [
+          {
+            id: '1',
+            value: 'a2',
+            change: [ChangeType.Moved, ChangeType.Updated],
+            children: [],
+          },
+        ],
+      },
+    ],
+  ],
+  [
+    { id: '1', value: 'a', children: [{ id: '2', value: 'b', children: [] }] },
+    { id: '2', value: 'b', children: [] },
+    [
+      {
+        id: '2',
+        value: 'b',
+        change: [ChangeType.Moved],
+        children: [],
+      },
+      { id: '1', value: 'a', change: [ChangeType.Deleted], children: [] },
+    ],
+  ],
+  [
+    {
+      id: '1',
+      value: 'a',
+      children: [
+        { id: '2', value: 'b', children: [] },
+        {
+          id: '3',
+          value: 'c',
+          children: [
+            { id: '4', value: 'd', children: [] },
+            { id: '5', value: 'e', children: [] },
+          ],
+        },
+      ],
+    },
+    { id: '3', value: 'c2', children: [{ id: '5', value: 'e', children: [] }] },
+    [
+      {
+        id: '3',
+        value: 'c2',
+        change: [ChangeType.Moved, ChangeType.Updated],
+        children: [
+          { id: '4', value: 'd', change: [ChangeType.Deleted], children: [] },
+          { id: '5', value: 'e', change: [ChangeType.Unchanged], children: [] },
+        ],
+      },
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Deleted],
+        children: [
+          { id: '2', value: 'b', change: [ChangeType.Deleted], children: [] },
+        ],
+      },
+    ],
+  ],
   [
     { id: '1', value: 'a', children: [] },
     { id: '1', value: 'a', children: [] },
-    { id: '1', value: 'a', change: [ChangeType.Unchanged], children: [] },
+    [{ id: '1', value: 'a', change: [ChangeType.Unchanged], children: [] }],
   ],
   [
     { id: '1', value: 'a', children: [] },
     { id: '1', value: 'a', children: [{ id: '2', value: 'b', children: [] }] },
-    {
-      id: '1',
-      value: 'a',
-      change: [ChangeType.Unchanged],
-      children: [
-        { id: '2', value: 'b', change: [ChangeType.Inserted], children: [] },
-      ],
-    },
+    [
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Unchanged],
+        children: [
+          { id: '2', value: 'b', change: [ChangeType.Inserted], children: [] },
+        ],
+      },
+    ],
   ],
   [
     {
@@ -40,20 +129,22 @@ const diffTreesMatches: [
         { id: '2', value: 'b', children: [] },
       ],
     },
-    {
-      id: '1',
-      value: 'a',
-      change: [ChangeType.Unchanged],
-      children: [
-        {
-          id: '3',
-          value: 'c2',
-          change: [ChangeType.Moved, ChangeType.Updated],
-          children: [],
-        },
-        { id: '2', value: 'b', change: [ChangeType.Moved], children: [] },
-      ],
-    },
+    [
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Unchanged],
+        children: [
+          {
+            id: '3',
+            value: 'c2',
+            change: [ChangeType.Moved, ChangeType.Updated],
+            children: [],
+          },
+          { id: '2', value: 'b', change: [ChangeType.Moved], children: [] },
+        ],
+      },
+    ],
   ],
   [
     {
@@ -69,15 +160,17 @@ const diffTreesMatches: [
         { id: '2', value: 'b', children: [] },
       ],
     },
-    {
-      id: '1',
-      value: 'a',
-      change: [ChangeType.Unchanged],
-      children: [
-        { id: '3', value: 'c', change: [ChangeType.Inserted], children: [] },
-        { id: '2', value: 'b', change: [ChangeType.Unchanged], children: [] },
-      ],
-    },
+    [
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Unchanged],
+        children: [
+          { id: '3', value: 'c', change: [ChangeType.Inserted], children: [] },
+          { id: '2', value: 'b', change: [ChangeType.Unchanged], children: [] },
+        ],
+      },
+    ],
   ],
   [
     {
@@ -93,15 +186,17 @@ const diffTreesMatches: [
       value: 'a',
       children: [{ id: '3', value: 'c', children: [] }],
     },
-    {
-      id: '1',
-      value: 'a',
-      change: [ChangeType.Unchanged],
-      children: [
-        { id: '2', value: 'b', change: [ChangeType.Deleted], children: [] },
-        { id: '3', value: 'c', change: [ChangeType.Unchanged], children: [] },
-      ],
-    },
+    [
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Unchanged],
+        children: [
+          { id: '2', value: 'b', change: [ChangeType.Deleted], children: [] },
+          { id: '3', value: 'c', change: [ChangeType.Unchanged], children: [] },
+        ],
+      },
+    ],
   ],
   [
     {
@@ -140,31 +235,38 @@ const diffTreesMatches: [
         },
       ],
     },
-    {
-      id: '1',
-      value: 'a',
-      change: [ChangeType.Unchanged],
-      children: [
-        {
-          id: '2',
-          value: 'b',
-          change: [ChangeType.Unchanged],
-          children: [
-            { id: '3', value: 'c', children: [], change: [ChangeType.Deleted] },
-            { id: '4', value: 'd', children: [], change: [ChangeType.Moved] },
-            { id: '5', value: 'e', children: [], change: [ChangeType.Moved] },
-            { id: '6', value: 'f', children: [], change: [ChangeType.Moved] },
-          ],
-        },
-      ],
-    },
+    [
+      {
+        id: '1',
+        value: 'a',
+        change: [ChangeType.Unchanged],
+        children: [
+          {
+            id: '2',
+            value: 'b',
+            change: [ChangeType.Unchanged],
+            children: [
+              {
+                id: '3',
+                value: 'c',
+                children: [],
+                change: [ChangeType.Deleted],
+              },
+              { id: '4', value: 'd', children: [], change: [ChangeType.Moved] },
+              { id: '5', value: 'e', children: [], change: [ChangeType.Moved] },
+              { id: '6', value: 'f', children: [], change: [ChangeType.Moved] },
+            ],
+          },
+        ],
+      },
+    ],
   ],
 ];
 type CustomValue = { version: string; backendId?: string };
 const customValueEquality: [
   TreeNode<{ value: CustomValue }>,
   TreeNode<{ value: CustomValue }>,
-  DiffTreeNode<CustomValue>
+  DiffTree<CustomValue>
 ][] = [
   [
     {
@@ -181,14 +283,16 @@ const customValueEquality: [
       },
       children: [],
     },
-    {
-      id: '1',
-      value: {
-        version: '1',
+    [
+      {
+        id: '1',
+        value: {
+          version: '1',
+        },
+        change: [ChangeType.Unchanged],
+        children: [],
       },
-      change: [ChangeType.Unchanged],
-      children: [],
-    },
+    ],
   ],
   [
     {
@@ -206,15 +310,17 @@ const customValueEquality: [
       },
       children: [],
     },
-    {
-      id: '1',
-      value: {
-        version: '1',
-        backendId: 'b1',
+    [
+      {
+        id: '1',
+        value: {
+          version: '1',
+          backendId: 'b1',
+        },
+        change: [ChangeType.Updated],
+        children: [],
       },
-      change: [ChangeType.Updated],
-      children: [],
-    },
+    ],
   ],
 ];
 

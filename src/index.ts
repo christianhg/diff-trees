@@ -19,6 +19,10 @@ type Change =
   | [ChangeType.Moved]
   | [ChangeType.Moved, ChangeType.Updated];
 
+export type DiffTree<TValue> =
+  | [DiffTreeNode<TValue>]
+  | [DiffTreeNode<TValue>, DiffTreeNode<TValue>];
+
 export type DiffTreeNode<TValue> = Omit<
   TreeNode<{ value: TValue }>,
   'children'
@@ -33,12 +37,12 @@ export function diffTrees<TValue>(
   options: { valueEquality: (a: TValue, b: TValue) => boolean } = {
     valueEquality: (a, b) => a === b,
   }
-): DiffTreeNode<TValue> {
+): DiffTree<TValue> {
   const [rootA, nodesA] = flattenTree(treeA);
   const [rootB, nodesB] = flattenTree(treeB);
 
   const deletedNodes: FlatDiffTreeNodes<TValue> = Array.from(nodesA)
-    .filter(([id]) => !nodesB.get(id))
+    .filter(([id]) => !nodesB.get(id) && id !== rootB.id)
     .map(([id, node]) => [
       id,
       {
@@ -51,10 +55,10 @@ export function diffTrees<TValue>(
 
   const insertedAndChanged: FlatDiffTreeNodes<TValue> = Array.from(nodesB).map(
     ([id, node]) => {
-      const nodeA = nodesA.get(id);
-      const inserted = !nodeA;
-      const valueChanged = nodeA
-        ? !options.valueEquality(node.value, nodeA.value)
+      const oldNode = id === rootA.id ? rootA : nodesA.get(id);
+      const inserted = !oldNode;
+      const valueChanged = oldNode
+        ? !options.valueEquality(node.value, oldNode.value)
         : false;
 
       return [
@@ -90,7 +94,8 @@ export function diffTrees<TValue>(
       const originalAddress = nodesA.get(id)?.address;
 
       const definitelyMoved =
-        originalAddress && originalAddress[0] !== node.address[0];
+        (originalAddress && originalAddress[0] !== node.address[0]) ||
+        rootA.id === id;
 
       if (definitelyMoved) {
         return [
@@ -150,17 +155,40 @@ export function diffTrees<TValue>(
     }
   );
 
+  const oldRoot = rootB.id === rootA.id ? rootA : nodesA.get(rootB.id);
+
   const flatDiffTree: FlatDiffTree<TValue> = [
-    {
-      ...rootB,
-      change: !options.valueEquality(rootA.value, rootB.value)
-        ? [ChangeType.Updated]
-        : [ChangeType.Unchanged],
-    },
+    oldRoot
+      ? {
+          ...rootB,
+          change:
+            nodesA.get(rootB.id) &&
+            !options.valueEquality(oldRoot.value, rootB.value)
+              ? [ChangeType.Moved, ChangeType.Updated]
+              : nodesA.get(rootB.id)
+              ? [ChangeType.Moved]
+              : !options.valueEquality(oldRoot.value, rootB.value)
+              ? [ChangeType.Updated]
+              : [ChangeType.Unchanged],
+        }
+      : {
+          ...rootB,
+          change: [ChangeType.Inserted],
+        },
     new Map(flatTreeDiffNodes),
   ];
 
-  return expandTree(flatDiffTree);
+  if (rootA.id !== rootB.id && !nodesB.get(rootA.id)) {
+    return [
+      expandTree(flatDiffTree),
+      expandTree([
+        { ...rootA, change: [ChangeType.Deleted] },
+        new Map(deletedNodes),
+      ]),
+    ];
+  } else {
+    return [expandTree(flatDiffTree)];
+  }
 }
 
 type FlatDiffTree<TValue> = FlatTree<{ value: TValue; change: Change }>;

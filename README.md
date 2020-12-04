@@ -13,7 +13,7 @@ A single `diffTrees` function is exported:
 declare function diffTrees<TValue>(
   treeA: TreeNode<{ value: TValue }>,
   treeB: TreeNode<{ value: TValue }>
-): DiffTreeNode<TValue>;
+): DiffTree<TValue>;
 ```
 
 It takes two trees of type `TreeNode`:
@@ -25,7 +25,13 @@ type TreeNode<TValues> = {
 } & TValues;
 ```
 
-And produces a single tree of type `DiffTreeNode`:
+And produces a single tree of type `DiffTree` which is an array containing one or two `DiffTreeNode`s. The second `DiffTreeNode` is included if the root of the tree was deleted.
+
+```ts
+type DiffTree<TValue> =
+  | [DiffTreeNode<TValue>]
+  | [DiffTreeNode<TValue>, DiffTreeNode<TValue>];
+```
 
 ```ts
 type DiffTreeNode<TValue> = Omit<TreeNode<{ value: TValue }>, 'children'> & {
