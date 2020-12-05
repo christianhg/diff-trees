@@ -1,5 +1,4 @@
-import { ChangeType, DiffTree, diffTrees } from '../src/index';
-import { TreeNode } from '../src/types';
+import { ChangeType, DiffTree, diffTrees, TreeNode } from '../src/index';
 
 const diffTreesMatches: [
   TreeNode<{ value: string }>,

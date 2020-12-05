@@ -10,7 +10,7 @@ export enum ChangeType {
   Updated = 'updated',
 }
 
-type Change =
+export type Change =
   | [ChangeType.Unchanged]
   | [ChangeType.Inserted]
   | [ChangeType.Deleted]
@@ -29,6 +29,8 @@ export type DiffTreeNode<TValue> = Omit<
   change: Change;
   children: DiffTreeNode<TValue>[];
 };
+
+export { TreeNode };
 
 export function diffTrees<TValue>(
   treeA: TreeNode<{ value: TValue }>,
