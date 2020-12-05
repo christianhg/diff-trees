@@ -1,4 +1,3 @@
-import { Entry } from './entries';
 import { FlatTree, FlatTreeNode, TreeNode } from './types';
 
 export function expandTree<TValues>([
@@ -12,7 +11,7 @@ export function expandTree<TValues>([
 }
 
 function expandNodes<TValues>(
-  flatNodes: Entry<string, FlatTreeNode<TValues>>[],
+  flatNodes: [string, FlatTreeNode<TValues>][],
   parentId: string
 ): TreeNode<TValues>[] {
   const children = flatNodes
