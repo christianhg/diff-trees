@@ -1,4 +1,3 @@
-import { Entry } from './entries';
 import { flattenTree } from './flatten-tree';
 import { expandTree } from './expand-tree';
 import { FlatTree, FlatTreeNode, TreeNode } from './types';
@@ -193,7 +192,7 @@ export function diffTrees<TValue>(
 
 type FlatDiffTree<TValue> = FlatTree<{ value: TValue; change: Change }>;
 
-type FlatDiffTreeNodes<TValue> = Entry<
+type FlatDiffTreeNodes<TValue> = [
   string,
   FlatTreeNode<{ value: TValue; change: Change }>
->[];
+][];
