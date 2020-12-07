@@ -1,8 +1,12 @@
-import { TreeIterator } from '../src/tree-iterator';
+import { createTreeIterator } from '../src/tree-iterator';
 import { TreeNode } from '../src/types';
 
-const matches: [TreeNode<{}>, number][] = [
-  [{ id: '1', children: [] }, 1],
+const matches: [TreeNode<{}>, Omit<TreeNode<{}>, 'children'>[]][] = [
+  [{ id: '1', children: [] }, [{ id: '1' }]],
+  [
+    { id: '1', children: [{ id: '2', children: [] }] },
+    [{ id: '1' }, { id: '2' }],
+  ],
   [
     {
       id: '1',
@@ -24,14 +28,23 @@ const matches: [TreeNode<{}>, number][] = [
         },
       ],
     },
-    8,
+    [
+      { id: '1' },
+      { id: '2' },
+      { id: '3' },
+      { id: '4' },
+      { id: '5' },
+      { id: '7' },
+      { id: '8' },
+      { id: '6' },
+    ],
   ],
 ];
 
-describe(TreeIterator.name, () => {
+describe(createTreeIterator.name, () => {
   it('works', () => {
-    matches.forEach(([tree, length]) => {
-      expect([...new TreeIterator(tree)].length).toBe(length);
+    matches.forEach(([tree, nodes]) => {
+      expect([...createTreeIterator(tree)]).toEqual(nodes);
     });
   });
 });

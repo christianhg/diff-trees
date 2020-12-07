@@ -1,31 +1,15 @@
-import { flattenTree } from './flatten-tree';
-import { FlatTree, FlatTreeNode, TreeNode } from './types';
+import { TreeNode } from './types';
 
-export class TreeIterator<TValues>
-  implements Iterator<Omit<TreeNode<TValues>, 'children'>> {
-  private flatTree: FlatTree<TValues>;
-  private doneRoot: boolean = false;
-  private nodeIterator: IterableIterator<FlatTreeNode<TValues>>;
+export function* createTreeIterator<TValues>(
+  tree: TreeNode<TValues>
+): Generator<Omit<TreeNode<TValues>, 'children'>> {
+  const { children, ...node } = tree;
 
-  constructor(tree: TreeNode<TValues>) {
-    this.flatTree = flattenTree(tree);
-    this.nodeIterator = this.flatTree[1].values();
-  }
+  yield node;
 
-  next() {
-    if (!this.doneRoot) {
-      this.doneRoot = true;
+  for (let index = 0; index < children.length; index++) {
+    const child = children[index];
 
-      return {
-        done: false,
-        value: this.flatTree[0],
-      };
-    }
-
-    return this.nodeIterator.next();
-  }
-
-  [Symbol.iterator]() {
-    return this;
+    yield* createTreeIterator(child);
   }
 }
