@@ -1,13 +1,9 @@
 import { createTreeIterator } from '../src/tree-iterator';
-import { TreeNode } from '../src/types';
+import { TreeNode, TreeNodeContext } from '../src/types';
 
 const matches: [
   TreeNode<{}>,
-  (Omit<TreeNode<{}>, 'children'> & {
-    address:
-      | { parentNode: undefined; index: 0 }
-      | { parentNode: string; index: number };
-  })[]
+  (Omit<TreeNode<{}>, 'children'> & { address: TreeNodeContext })[]
 ][] = [
   [
     { id: '1', children: [] },

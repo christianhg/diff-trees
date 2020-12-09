@@ -1,4 +1,4 @@
-import { TreeNode } from './types';
+import { TreeNode, TreeNodeContext } from './types';
 
 export function* createTreeIterator<
   TValues,
@@ -10,13 +10,16 @@ export function* createTreeIterator<
     context,
   }: {
     node: Omit<TreeNode<TValues>, 'children'>;
-    context: { parentNode?: string; index: number };
+    context: TreeNodeContext;
   }) => TTreeNode,
-  context?: { parentNode: string; index: number }
+  context?: TreeNodeContext
 ): Generator<TTreeNode> {
   const { children, ...node } = tree;
 
-  yield transformer({ node, context: context ?? { index: 0 } });
+  yield transformer({
+    node,
+    context: context ?? { parentNode: undefined, index: 0 },
+  });
 
   for (let index = 0; index < children.length; index++) {
     const child = children[index];
