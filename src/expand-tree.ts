@@ -15,14 +15,14 @@ function expandNodes<TValues>(
   parentId: string
 ): TreeNode<TValues>[] {
   const children = flatNodes
-    .filter(([, { address }]) => address[0] === parentId)
-    .sort(([, nodeA], [, nodeB]) => nodeA.address[1] - nodeB.address[1]);
+    .filter(([, { context: address }]) => address[0] === parentId)
+    .sort(([, nodeA], [, nodeB]) => nodeA.context[1] - nodeB.context[1]);
   const remainingNodes = flatNodes.filter(
     ([_, node]) => !children.find(([_, child]) => node.id === child.id)
   );
 
   return children.map(([_, child]) => {
-    const { address, ...rest } = child;
+    const { context: address, ...rest } = child;
     const expandedNode = {
       ...rest,
       children: expandNodes(remainingNodes, rest.id),

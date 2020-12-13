@@ -13,5 +13,5 @@ export type FlatTree<TValues> = [
 ];
 
 export type FlatTreeNode<TValues> = Omit<TreeNode<TValues>, 'children'> & {
-  address: [string, number];
+  context: [string, number];
 };

@@ -18,7 +18,7 @@ function flattenNodes<TValues>(
       const { id, children, ...rest } = node;
       const flatNode = {
         id,
-        address: [parentId, index],
+        context: [parentId, index],
         ...rest,
       } as FlatTreeNode<TValues>;
 

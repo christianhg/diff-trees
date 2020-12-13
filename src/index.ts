@@ -49,7 +49,7 @@ export function diffTrees<TValue>(
       {
         id: node.id,
         value: node.value,
-        address: node.address,
+        context: node.context,
         change: [ChangeType.Deleted],
       },
     ]);
@@ -67,7 +67,7 @@ export function diffTrees<TValue>(
         {
           id: node.id,
           value: node.value,
-          address: node.address,
+          context: node.context,
           change: inserted
             ? [ChangeType.Inserted]
             : valueChanged
@@ -92,10 +92,10 @@ export function diffTrees<TValue>(
         return [id, node];
       }
 
-      const originalAddress = nodesA.get(id)?.address;
+      const originalAddress = nodesA.get(id)?.context;
 
       const definitelyMoved =
-        (originalAddress && originalAddress[0] !== node.address[0]) ||
+        (originalAddress && originalAddress[0] !== node.context[0]) ||
         rootA.id === id;
 
       if (definitelyMoved) {
@@ -104,7 +104,7 @@ export function diffTrees<TValue>(
           {
             id: node.id,
             value: node.value,
-            address: node.address,
+            context: node.context,
             change:
               node.change[0] === ChangeType.Unchanged
                 ? [ChangeType.Moved]
@@ -116,22 +116,22 @@ export function diffTrees<TValue>(
       }
 
       const mightHaveMoved = originalAddress
-        ? originalAddress[0] === node.address[0] &&
-          originalAddress[1] !== node.address[1]
+        ? originalAddress[0] === node.context[0] &&
+          originalAddress[1] !== node.context[1]
         : false;
 
       if (originalAddress && mightHaveMoved) {
         const siblingsAbove = deletedInsertedAndChanged
-          .filter(([_, sib]) => sib.address[0] === node.address[0])
+          .filter(([_, sib]) => sib.context[0] === node.context[0])
           .filter(([id]) => id !== node.id)
-          .filter(([_, sib]) => sib.address[1] <= node.address[1])
+          .filter(([_, sib]) => sib.context[1] <= node.context[1])
           .filter(([_, sib]) => sib.change[0] !== ChangeType.Inserted);
 
         const movedUp =
-          node.address[1] < originalAddress[1] &&
+          node.context[1] < originalAddress[1] &&
           siblingsAbove.length !== originalAddress[1];
         const movedDown =
-          node.address[1] > originalAddress[1] &&
+          node.context[1] > originalAddress[1] &&
           siblingsAbove.length > originalAddress[1];
 
         if (movedUp || movedDown) {
@@ -140,7 +140,7 @@ export function diffTrees<TValue>(
             {
               id: node.id,
               value: node.value,
-              address: node.address,
+              context: node.context,
               change:
                 node.change[0] === ChangeType.Unchanged
                   ? [ChangeType.Moved]
