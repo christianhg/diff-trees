@@ -11,14 +11,14 @@ export function flattenTree<TValues>(
 
 function flattenNodes<TValues>(
   nodes: TreeNode<TValues>[],
-  parentId: string
+  parentNode: string
 ): [string, FlatTreeNode<TValues>][] {
   return flatten(
     nodes.map((node, index) => {
       const { id, children, ...rest } = node;
       const flatNode = {
         id,
-        context: [parentId, index],
+        context: { parentNode, index },
         ...rest,
       } as FlatTreeNode<TValues>;
 

@@ -92,10 +92,11 @@ export function diffTrees<TValue>(
         return [id, node];
       }
 
-      const originalAddress = nodesA.get(id)?.context;
+      const originalContext = nodesA.get(id)?.context;
 
       const definitelyMoved =
-        (originalAddress && originalAddress[0] !== node.context[0]) ||
+        (originalContext &&
+          originalContext.parentNode !== node.context.parentNode) ||
         rootA.id === id;
 
       if (definitelyMoved) {
@@ -115,24 +116,26 @@ export function diffTrees<TValue>(
         ];
       }
 
-      const mightHaveMoved = originalAddress
-        ? originalAddress[0] === node.context[0] &&
-          originalAddress[1] !== node.context[1]
+      const mightHaveMoved = originalContext
+        ? originalContext.parentNode === node.context.parentNode &&
+          originalContext.index !== node.context.index
         : false;
 
-      if (originalAddress && mightHaveMoved) {
+      if (originalContext && mightHaveMoved) {
         const siblingsAbove = deletedInsertedAndChanged
-          .filter(([_, sib]) => sib.context[0] === node.context[0])
+          .filter(
+            ([_, sib]) => sib.context.parentNode === node.context.parentNode
+          )
           .filter(([id]) => id !== node.id)
-          .filter(([_, sib]) => sib.context[1] <= node.context[1])
+          .filter(([_, sib]) => sib.context.index <= node.context.index)
           .filter(([_, sib]) => sib.change[0] !== ChangeType.Inserted);
 
         const movedUp =
-          node.context[1] < originalAddress[1] &&
-          siblingsAbove.length !== originalAddress[1];
+          node.context.index < originalContext.index &&
+          siblingsAbove.length !== originalContext.index;
         const movedDown =
-          node.context[1] > originalAddress[1] &&
-          siblingsAbove.length > originalAddress[1];
+          node.context.index > originalContext.index &&
+          siblingsAbove.length > originalContext.index;
 
         if (movedUp || movedDown) {
           return [

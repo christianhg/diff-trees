@@ -12,11 +12,11 @@ export function expandTree<TValues>([
 
 function expandNodes<TValues>(
   flatNodes: [string, FlatTreeNode<TValues>][],
-  parentId: string
+  parentNode: string
 ): TreeNode<TValues>[] {
   const children = flatNodes
-    .filter(([, { context: address }]) => address[0] === parentId)
-    .sort(([, nodeA], [, nodeB]) => nodeA.context[1] - nodeB.context[1]);
+    .filter(([, { context: address }]) => address.parentNode === parentNode)
+    .sort(([, nodeA], [, nodeB]) => nodeA.context.index - nodeB.context.index);
   const remainingNodes = flatNodes.filter(
     ([_, node]) => !children.find(([_, child]) => node.id === child.id)
   );
