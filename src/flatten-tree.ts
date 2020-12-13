@@ -5,7 +5,7 @@ import { FlatTree, TreeNode } from './types';
 export function flattenTree<TValues>(
   tree: TreeNode<TValues>
 ): FlatTree<TValues> {
-  const [[, root], ...children] = [
+  return [
     ...createTreeIterator(tree, ({ context, node }) =>
       createEntry(node.id, {
         ...node,
@@ -13,6 +13,4 @@ export function flattenTree<TValues>(
       })
     ),
   ];
-
-  return [root, new Map(children)];
 }

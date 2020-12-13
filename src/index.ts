@@ -39,8 +39,13 @@ export function diffTrees<TValue>(
     valueEquality: (a, b) => a === b,
   }
 ): DiffTree<TValue> {
-  const [rootA, nodesA] = flattenTree(treeA);
-  const [rootB, nodesB] = flattenTree(treeB);
+  const flatTreeA = flattenTree(treeA);
+  const rootA = flatTreeA.shift()![1];
+  const nodesA = new Map(flatTreeA);
+
+  const flatTreeB = flattenTree(treeB);
+  const rootB = flatTreeB.shift()![1];
+  const nodesB = new Map(flatTreeB);
 
   const deletedNodes: FlatDiffTreeNodes<TValue> = Array.from(nodesA)
     .filter(([id]) => !nodesB.get(id) && id !== rootB.id)
@@ -162,32 +167,35 @@ export function diffTrees<TValue>(
   const oldRoot = rootB.id === rootA.id ? rootA : nodesA.get(rootB.id);
 
   const flatDiffTree: FlatDiffTree<TValue> = [
-    oldRoot
-      ? {
-          ...rootB,
-          change:
-            nodesA.get(rootB.id) &&
-            !options.valueEquality(oldRoot.value, rootB.value)
-              ? [ChangeType.Moved, ChangeType.Updated]
-              : nodesA.get(rootB.id)
-              ? [ChangeType.Moved]
-              : !options.valueEquality(oldRoot.value, rootB.value)
-              ? [ChangeType.Updated]
-              : [ChangeType.Unchanged],
-        }
-      : {
-          ...rootB,
-          change: [ChangeType.Inserted],
-        },
-    new Map(flatTreeDiffNodes),
+    [
+      rootB.id,
+      oldRoot
+        ? {
+            ...rootB,
+            change:
+              nodesA.get(rootB.id) &&
+              !options.valueEquality(oldRoot.value, rootB.value)
+                ? [ChangeType.Moved, ChangeType.Updated]
+                : nodesA.get(rootB.id)
+                ? [ChangeType.Moved]
+                : !options.valueEquality(oldRoot.value, rootB.value)
+                ? [ChangeType.Updated]
+                : [ChangeType.Unchanged],
+          }
+        : {
+            ...rootB,
+            change: [ChangeType.Inserted],
+          },
+    ],
+    ...flatTreeDiffNodes,
   ];
 
   if (rootA.id !== rootB.id && !nodesB.get(rootA.id)) {
     return [
       expandTree(flatDiffTree),
       expandTree([
-        { ...rootA, change: [ChangeType.Deleted] },
-        new Map(deletedNodes),
+        [rootA.id, { ...rootA, change: [ChangeType.Deleted] }],
+        ...deletedNodes,
       ]),
     ];
   } else {

@@ -1,13 +1,14 @@
 import { FlatTree, FlatTreeNode, TreeNode } from './types';
 
-export function expandTree<TValues>([
-  root,
-  nodes,
-]: FlatTree<TValues>): TreeNode<TValues> {
-  const { context, ...rest } = root;
+export function expandTree<TValues>(
+  flatTree: FlatTree<TValues>
+): TreeNode<TValues> {
+  const [root, ...nodes] = flatTree;
+  const { context, ...rest } = root[1];
+
   return {
     ...rest,
-    children: expandNodes(Array.from(nodes), root.id),
+    children: expandNodes(nodes, root[1].id),
   } as TreeNode<TValues>;
 }
 

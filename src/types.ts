@@ -7,10 +7,7 @@ export type TreeNodeContext =
   | { parentNode: undefined; index: 0 }
   | { parentNode: string; index: number };
 
-export type FlatTree<TValues> = [
-  FlatTreeNode<TValues>,
-  Map<string, FlatTreeNode<TValues>>
-];
+export type FlatTree<TValues> = [string, FlatTreeNode<TValues>][];
 
 export type FlatTreeNode<TValues> = Omit<TreeNode<TValues>, 'children'> & {
   context: TreeNodeContext;
