@@ -1,28 +1,18 @@
-import { flatten } from './array';
-import { FlatTree, FlatTreeNode, TreeNode } from './types';
+import { createEntry } from './entries';
+import { createTreeIterator } from './tree-iterator';
+import { FlatTree, TreeNode } from './types';
 
 export function flattenTree<TValues>(
   tree: TreeNode<TValues>
 ): FlatTree<TValues> {
-  const { children, ...root } = tree;
+  const [[, root], ...children] = [
+    ...createTreeIterator(tree, ({ context, node }) =>
+      createEntry(node.id, {
+        ...node,
+        context,
+      })
+    ),
+  ];
 
-  return [root, new Map(flattenNodes(children, root.id))];
-}
-
-function flattenNodes<TValues>(
-  nodes: TreeNode<TValues>[],
-  parentNode: string
-): [string, FlatTreeNode<TValues>][] {
-  return flatten(
-    nodes.map((node, index) => {
-      const { id, children, ...rest } = node;
-      const flatNode = {
-        id,
-        context: { parentNode, index },
-        ...rest,
-      } as FlatTreeNode<TValues>;
-
-      return [[id, flatNode], ...flattenNodes(children, id)];
-    })
-  );
+  return [root, new Map(children)];
 }

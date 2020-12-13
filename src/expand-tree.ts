@@ -4,8 +4,9 @@ export function expandTree<TValues>([
   root,
   nodes,
 ]: FlatTree<TValues>): TreeNode<TValues> {
+  const { context, ...rest } = root;
   return {
-    ...root,
+    ...rest,
     children: expandNodes(Array.from(nodes), root.id),
   } as TreeNode<TValues>;
 }

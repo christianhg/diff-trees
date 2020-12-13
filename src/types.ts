@@ -8,7 +8,7 @@ export type TreeNodeContext =
   | { parentNode: string; index: number };
 
 export type FlatTree<TValues> = [
-  Omit<TreeNode<TValues>, 'children'>,
+  FlatTreeNode<TValues>,
   Map<string, FlatTreeNode<TValues>>
 ];
 

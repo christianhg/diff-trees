@@ -1,9 +1,6 @@
 import { TreeNode, TreeNodeContext } from './types';
 
-export function* createTreeIterator<
-  TValues,
-  TTreeNode extends Omit<TreeNode<TValues>, 'children'>
->(
+export function* createTreeIterator<TValues, TTreeNode>(
   tree: TreeNode<TValues>,
   transformer: ({
     node,
