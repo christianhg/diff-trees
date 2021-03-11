@@ -50,12 +50,12 @@
     }
   ],
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.9.0",
-    "prettier": "^2.2.0",
+    "@size-limit/preset-small-lib": "^4.10.1",
+    "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "size-limit": "^4.9.0",
+    "size-limit": "^4.10.1",
     "tsdx": "^0.14.1",
-    "tslib": "^2.0.3",
-    "typescript": "^4.1.2"
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
   }
 }
