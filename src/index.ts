@@ -88,8 +88,8 @@ export function diffTrees<TValue>(
     ...insertedAndChanged,
   ];
 
-  const flatTreeDiffNodes: FlatDiffTreeNodes<TValue> = deletedInsertedAndChanged.map(
-    ([id, node]) => {
+  const flatTreeDiffNodes: FlatDiffTreeNodes<TValue> =
+    deletedInsertedAndChanged.map(([id, node]) => {
       if (
         node.change[0] === ChangeType.Inserted ||
         node.change[0] === ChangeType.Deleted
@@ -161,8 +161,7 @@ export function diffTrees<TValue>(
       }
 
       return [id, node];
-    }
-  );
+    });
 
   const oldRoot = rootB.id === rootA.id ? rootA : nodesA.get(rootB.id);
 
