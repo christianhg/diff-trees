@@ -15,7 +15,6 @@
     "build": "npm run prettier-production && npm test && tsup src/index.ts --format esm,cjs --dts --sourcemap --minify",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "lint": "tsdx lint",
     "prepare": "npm run build",
     "prettier": "prettier --write \"**/*\" --ignore-unknown",
     "prettier-production": "prettier --list-different \"**/*\" --ignore-unknown",
@@ -39,8 +38,6 @@
   "devDependencies": {
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.2.0",
     "tsup": "^6.2.1",
     "typescript": "^4.2.4",
     "vitest": "^0.19.1"
