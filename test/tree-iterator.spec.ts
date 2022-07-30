@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { createTreeIterator } from '../src/tree-iterator';
 import { TreeNode, TreeNodeContext } from '../src/types';
 

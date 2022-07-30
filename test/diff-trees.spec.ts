@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { ChangeType, DiffTree, diffTrees, TreeNode } from '../src/index';
 
 const diffTreesMatches: [
