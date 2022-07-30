@@ -19,9 +19,7 @@
     "prepare": "npm run build",
     "prettier": "prettier --write \"**/*\" --ignore-unknown",
     "prettier-production": "prettier --list-different \"**/*\" --ignore-unknown",
-    "prettier-staged": "pretty-quick --staged --pattern \"**/*\" --ignore-unknown",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
+    "prettier-staged": "pretty-quick --staged --pattern \"**/*\" --ignore-unknown"
   },
   "peerDependencies": {},
   "name": "diff-trees",
@@ -38,21 +36,9 @@
   },
   "homepage": "https://github.com/christianhg/diff-trees",
   "bugs": "https://github.com/christianhg/diff-trees/issues",
-  "size-limit": [
-    {
-      "path": "dist/diff-trees.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/diff-trees.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.10.2",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
-    "size-limit": "^4.10.2",
     "tsdx": "^0.14.1",
     "tslib": "^2.2.0",
     "tsup": "^6.2.1",
