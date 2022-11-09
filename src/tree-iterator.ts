@@ -21,7 +21,7 @@ export function* createTreeIterator<TValues, TTreeNode>(
   for (let index = 0; index < children.length; index++) {
     const child = children[index];
 
-    yield* createTreeIterator(child, transformer, {
+    yield* createTreeIterator(child!, transformer, {
       parentNode: node.id,
       index,
     });

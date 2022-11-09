@@ -4,11 +4,11 @@ export function expandTree<TValues>(
   flatTree: FlatTree<TValues>
 ): TreeNode<TValues> {
   const [root, ...nodes] = flatTree;
-  const { context, ...rest } = root[1];
+  const { context, ...rest } = root![1];
 
   return {
     ...rest,
-    children: expandNodes(nodes, root[1].id),
+    children: expandNodes(nodes, root![1].id),
   } as TreeNode<TValues>;
 }
 

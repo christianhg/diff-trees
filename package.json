@@ -12,7 +12,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "npm run prettier-production && npm test && tsup src/index.ts --format esm,cjs --dts --sourcemap --minify",
+    "build": "npm run prettier-production && npm test && npm run type-check && tsup src/index.ts --format esm,cjs --dts --sourcemap --minify",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "prepare": "npm run build",
