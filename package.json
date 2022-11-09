@@ -8,9 +8,6 @@
     "dist",
     "src"
   ],
-  "engines": {
-    "node": ">=10"
-  },
   "scripts": {
     "build": "npm run prettier-production && npm test && npm run type-check && tsup src/index.ts --format esm,cjs --dts --sourcemap --minify",
     "test": "vitest run",
